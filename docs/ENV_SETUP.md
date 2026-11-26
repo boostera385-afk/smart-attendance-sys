@@ -33,7 +33,7 @@ The **OpenAI key is not in any file** — an admin pastes it in the app: **Setti
 
 ## 2. EZVIZ cameras
 
-1. Go to **open.ezviz.com** (international) → sign in with the **same EZVIZ account used in EZVIZ Studio**.
+1. Go to **https://isgpopen.ezviz.com/console/login.html** (Asia/Singapore region, for Pakistan accounts; open.ezvizlife.com sign-in is broken) → sign in with the **same EZVIZ account used in EZVIZ Studio**.
 2. Developer / **My Application** → *Create application* → copy **AppKey** and **AppSecret**.
    - `EZVIZ_APP_KEY`, `EZVIZ_APP_SECRET`
 3. Test the cameras:
@@ -41,6 +41,25 @@ The **OpenAI key is not in any file** — an admin pastes it in the app: **Setti
    $env:EZVIZ_APP_KEY="..."; $env:EZVIZ_APP_SECRET="..."
    python worker/ezviz_probe.py
    ```
+
+### EZVIZ developer links (checked 2026-11-26)
+
+| What | Link | Status |
+|---|---|---|
+| **Developer console login (use this)** | https://isgpopen.ezviz.com/console/login.html → *By email* | ✅ works (our account is in the Singapore region) |
+| Console home / My Application | https://isgpopen.ezviz.com/console/home.html | ✅ after login |
+| API domain (set automatically from the token) | https://isgpopen.ezvizlife.com | ✅ token + 10 devices OK |
+| API docs (English) | https://open.ys7.com/help/en | ✅ |
+| Other regions, only if an account isn't found | India https://iindiaopen.ezviz.com/console/login.html · Europe https://ieuopen.ezviz.com/console/login.html | ✅ |
+| `open.ezvizlife.com` › *Sign in* / `/console/*` | — | ❌ 404 |
+| `open.ezvizlife.com/login` | — | ❌ OAuth page for other apps, shows error 10017 |
+| ezvizstore.pk | — | ❌ shop only, no developer keys |
+
+First login asks for a one-time developer profile: Business · Pastry Marketing · Pakistan · application **Presence**, type *Website address* = `https://smart-attendance-sys-eight.vercel.app`.
+
+**Probe result (2026-11-26):** all 10 cameras online, snapshots OK (768×432, too small for recognition at distance).
+Live stream fails with **60019 "Encryption is enabled"** → in the EZVIZ app: camera › ⚙ Settings › **Video Encryption: off** (at least the entrance/exit cameras),
+or keep it on and supply each camera's 6-letter verification code (from its sticker) to the worker.
 
 ## 3. Resend (sending emails)
 

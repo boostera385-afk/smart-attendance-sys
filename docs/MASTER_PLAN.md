@@ -422,7 +422,7 @@ Settings › Notifications. Retries up to 5 times; failures visible to admins.
 ## 7. Flows
 
 ### 7.1 One-time setup
-1. Super admin logs in at open.ezviz.com with the same EZVIZ account → creates application → copies appKey/appSecret.
+1. Super admin logs in at https://isgpopen.ezviz.com/console/login.html (see docs/ENV_SETUP.md › EZVIZ developer links) with the same EZVIZ account → creates application → copies appKey/appSecret.
 2. Dashboard › Settings › EZVIZ → paste keys → **Import cameras** (all devices + groups).
 3. Set each camera's Role, Branch/Department, Enabled → **Test** (snapshot).
 4. Settings › Attendance rules: company defaults for late grace, early-leave grace, overtime, half-day (§7A).
@@ -533,7 +533,7 @@ Settings › Confirmation
 
 ## 11. Phase 0 checklist (owner: company)
 
-- [ ] Create EZVIZ Open Platform application (open.ezviz.com, same EZVIZ account) → appKey + appSecret
+- [x] Create EZVIZ Open Platform application (isgpopen.ezviz.com, same EZVIZ account) ✅ done 2026-11-26 → appKey + appSecret
 - [ ] Note camera LAN IPs (EZVIZ Studio › Devices on LAN) for RTSP fallback test in VLC
 - [ ] Decide which cameras face entrance/exit doors at face height (move an H6c Pro if needed)
 - [ ] Employee consent for face recognition (biometric data)
