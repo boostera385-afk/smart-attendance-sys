@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# build output
+web/.next/
+web/out/
+*.tsbuildinfo
+
+# local tooling / test artifacts
+.playwright-mcp/
+.claude/settings.local.json
+.vercel/
+supabase/.temp/
+supabase/.branches/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+worker/probe_output/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
