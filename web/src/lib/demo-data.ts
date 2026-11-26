@@ -9,6 +9,8 @@ export type CheckEvent = {
   time: string; // HH:mm
   status: "on_time" | "late";
   confidence: number;
+  /** minutes before shift start (check-in) or after shift end (check-out) — extra time, not paid */
+  extraMinutes?: number;
 };
 
 export type CameraHealth = {
@@ -32,16 +34,27 @@ export const recentEvents: CheckEvent[] = [
   { id: "1", name: "Ayesha Khan", department: "SEO", camera: "OFFICE", type: "check_in", time: "09:14", status: "late", confidence: 0.94 },
   { id: "2", name: "Bilal Ahmed", department: "ND TEAM", camera: "OFFICE", type: "check_in", time: "09:09", status: "on_time", confidence: 0.97 },
   { id: "3", name: "Sara Malik", department: "Facebook team", camera: "OFFICE", type: "check_in", time: "09:03", status: "on_time", confidence: 0.96 },
-  { id: "4", name: "Usman Tariq", department: "Delivery", camera: "OFFICE", type: "check_in", time: "08:58", status: "on_time", confidence: 0.92 },
-  { id: "5", name: "Hina Raza", department: "ND TEAM", camera: "OFFICE", type: "check_in", time: "08:55", status: "on_time", confidence: 0.98 },
-  { id: "6", name: "Omar Farooq", department: "SEO", camera: "OFFICE", type: "check_in", time: "08:51", status: "on_time", confidence: 0.95 },
+  { id: "4", name: "Usman Tariq", department: "Delivery", camera: "OFFICE", type: "check_in", time: "08:58", status: "on_time", confidence: 0.92, extraMinutes: 2 },
+  { id: "5", name: "Hina Raza", department: "ND TEAM", camera: "OFFICE", type: "check_in", time: "08:55", status: "on_time", confidence: 0.98, extraMinutes: 5 },
+  { id: "6", name: "Omar Farooq", department: "SEO", camera: "OFFICE", type: "check_in", time: "08:51", status: "on_time", confidence: 0.95, extraMinutes: 9 },
 ];
+
+/** Extra time = before shift start + after shift end. Recorded and shown, never paid. */
+export const extraTime = {
+  todayMinutes: 142,
+  weekMinutes: 1265,
+  top: [
+    { name: "Omar Farooq", department: "SEO", minutes: 310 },
+    { name: "Hina Raza", department: "ND TEAM", minutes: 245 },
+    { name: "Bilal Ahmed", department: "ND TEAM", minutes: 190 },
+  ],
+};
 
 /** Feed of arrivals the demo "live" stream cycles through. */
 export const demoArrivals: Omit<CheckEvent, "id" | "time">[] = [
   { name: "Zain Ali", department: "Facebook team", camera: "OFFICE", type: "check_in", status: "late", confidence: 0.93 },
   { name: "Maryam Iqbal", department: "SEO", camera: "OFFICE", type: "check_in", status: "late", confidence: 0.96 },
-  { name: "Hamza Sheikh", department: "ND TEAM", camera: "H6C (B…)", type: "check_out", status: "on_time", confidence: 0.91 },
+  { name: "Hamza Sheikh", department: "ND TEAM", camera: "H6C (B…)", type: "check_out", status: "on_time", confidence: 0.91, extraMinutes: 25 },
   { name: "Fatima Noor", department: "Delivery", camera: "OFFICE", type: "check_in", status: "late", confidence: 0.95 },
 ];
 

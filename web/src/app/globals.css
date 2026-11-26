@@ -5,16 +5,18 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ------------------------------------------------------------------
-   Theme: "Presence" — teal primary (attendance ✓), amber = late,
-   rose = absent, indigo = info. All colors in OKLCH.
+   Theme: Pastry Marketing "Pastry Neon", in OKLCH.
+   Lime = go / primary action · Pink = focus & urgent · Cyan = info
+   Violet = AI only · Sun = warning · Cherry = critical · Mint = success
+   Source: marshmallow-crm/docs/plans/2026-11-24-pastry-neon-theme.md
    ------------------------------------------------------------------ */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-display);
+  --font-heading: var(--font-inter); /* card/section titles: Inter; Anton only via .font-display / .page-title */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -45,7 +47,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* status colors */
+  /* status + brand colors */
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
@@ -54,6 +56,12 @@
   --color-danger-soft: var(--danger-soft);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
+  --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
+  --color-brand: var(--brand);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-violet: var(--brand-violet);
+  --color-ink: var(--ink);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -68,100 +76,127 @@
   --animate-float: float 6s ease-in-out infinite;
 }
 
+/* Pastry Marketing logo colours, same in both themes (login panel, buttons, footer).
+   Source: marshmallow-crm feat/login-pastry-brand-theme (src/index.css). */
+@theme {
+  --color-pastry-navy: oklch(0.273 0.116 275.6);  /* #1B1B5E */
+  --color-pastry-pink: oklch(0.656 0.212 354.3);  /* #EC4899 */
+  --color-pastry-lime: oklch(0.842 0.182 116.5);  /* #C5D92D */
+  --color-pastry-cherry: oklch(0.592 0.219 10.6); /* #E0245E */
+}
+
+/* Light ("Paper") */
 :root {
   --radius: 0.75rem;
 
-  --background: oklch(0.985 0.004 240);
-  --foreground: oklch(0.2 0.02 255);
+  --ink: oklch(0.16 0.045 280);
+  --brand: oklch(0.916 0.21 118.7);          /* lime #D6F51B */
+  --brand-pink: oklch(0.529 0.208 358.4);    /* #C0106A */
+  --brand-violet: oklch(0.491 0.241 292.6);  /* #6D28D9 */
+
+  --background: oklch(0.977 0.007 277.2);    /* #F6F7FC */
+  --foreground: oklch(0.16 0.045 280);       /* ink */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 255);
+  --card-foreground: oklch(0.16 0.045 280);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 255);
-  --primary: oklch(0.58 0.13 175);
-  --primary-foreground: oklch(0.99 0.01 175);
-  --secondary: oklch(0.955 0.008 240);
-  --secondary-foreground: oklch(0.27 0.02 255);
-  --muted: oklch(0.955 0.008 240);
-  --muted-foreground: oklch(0.52 0.02 255);
-  --accent: oklch(0.95 0.03 175);
-  --accent-foreground: oklch(0.33 0.07 175);
-  --destructive: oklch(0.6 0.2 18);
-  --border: oklch(0.915 0.008 240);
-  --input: oklch(0.9 0.01 240);
-  --ring: oklch(0.58 0.13 175);
+  --popover-foreground: oklch(0.16 0.045 280);
+  --primary: oklch(0.222 0.08 277.7);        /* navy #14143F — lime text on it */
+  --primary-foreground: oklch(0.916 0.21 118.7);
+  --secondary: oklch(0.95 0.012 278);
+  --secondary-foreground: oklch(0.222 0.08 277.7);
+  --muted: oklch(0.955 0.01 278);
+  --muted-foreground: oklch(0.498 0.07 280.5); /* haze #5B5E8A */
+  --accent: oklch(0.94 0.02 278);
+  --accent-foreground: oklch(0.222 0.08 277.7);
+  --destructive: oklch(0.538 0.2 19.9);
+  --border: oklch(0.924 0.018 279);
+  --input: oklch(0.9 0.022 279);
+  --ring: oklch(0.529 0.208 358.4);          /* pink focus */
 
-  --success: oklch(0.6 0.14 160);
-  --success-soft: oklch(0.95 0.04 160);
-  --warning: oklch(0.72 0.15 70);
-  --warning-soft: oklch(0.96 0.05 80);
-  --danger: oklch(0.6 0.2 18);
-  --danger-soft: oklch(0.95 0.03 18);
-  --info: oklch(0.56 0.17 265);
-  --info-soft: oklch(0.95 0.03 265);
+  --success: oklch(0.508 0.105 165.6);       /* #047857 */
+  --warning: oklch(0.531 0.119 65.1);        /* #9A5B00 */
+  --danger: oklch(0.538 0.2 19.9);           /* #C81E3A */
+  --info: oklch(0.52 0.094 223.1);           /* #0E7490 */
+  --blue: oklch(0.55 0.2 262);               /* trend graphs, leave */
 
-  --chart-1: oklch(0.6 0.13 175);
-  --chart-2: oklch(0.58 0.17 265);
-  --chart-3: oklch(0.74 0.15 70);
-  --chart-4: oklch(0.62 0.19 18);
-  --chart-5: oklch(0.6 0.16 310);
+  --chart-1: oklch(0.532 0.141 131.6);       /* olive-lime: present */
+  --chart-2: oklch(0.52 0.094 223.1);        /* cyan */
+  --chart-3: oklch(0.785 0.164 77.6);        /* sun */
+  --chart-4: oklch(0.538 0.2 19.9);          /* cherry */
+  --chart-5: oklch(0.491 0.241 292.6);       /* violet */
 
-  --sidebar: oklch(0.975 0.006 240);
-  --sidebar-foreground: oklch(0.27 0.02 255);
-  --sidebar-primary: oklch(0.58 0.13 175);
-  --sidebar-primary-foreground: oklch(0.99 0.01 175);
-  --sidebar-accent: oklch(0.94 0.02 200);
-  --sidebar-accent-foreground: oklch(0.25 0.03 220);
-  --sidebar-border: oklch(0.915 0.008 240);
-  --sidebar-ring: oklch(0.58 0.13 175);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.222 0.08 277.7);
+  --sidebar-primary: oklch(0.222 0.08 277.7);
+  --sidebar-primary-foreground: oklch(0.916 0.21 118.7);
+  --sidebar-accent: oklch(0.95 0.02 278);
+  --sidebar-accent-foreground: oklch(0.16 0.045 280);
+  --sidebar-border: oklch(0.924 0.018 279);
+  --sidebar-ring: oklch(0.529 0.208 358.4);
 
-  --glow: oklch(0.7 0.14 175 / 0.25);
+  --glow-a: oklch(0.916 0.21 118.7 / 0.16);
+  --glow-b: oklch(0.664 0.247 359.3 / 0.08);
 }
 
+/* Dark ("Ink") — brand default */
 .dark {
-  --background: oklch(0.155 0.014 255);
-  --foreground: oklch(0.96 0.006 255);
-  --card: oklch(0.2 0.017 255);
-  --card-foreground: oklch(0.96 0.006 255);
-  --popover: oklch(0.22 0.018 255);
-  --popover-foreground: oklch(0.96 0.006 255);
-  --primary: oklch(0.74 0.13 175);
-  --primary-foreground: oklch(0.18 0.03 175);
-  --secondary: oklch(0.26 0.016 255);
-  --secondary-foreground: oklch(0.96 0.006 255);
-  --muted: oklch(0.25 0.015 255);
-  --muted-foreground: oklch(0.7 0.015 255);
-  --accent: oklch(0.3 0.05 175);
-  --accent-foreground: oklch(0.92 0.05 175);
-  --destructive: oklch(0.68 0.19 20);
+  --ink: oklch(0.16 0.045 280);
+  --brand: oklch(0.916 0.21 118.7);
+  --brand-pink: oklch(0.664 0.247 359.3);    /* #FF2D8F */
+  --brand-violet: oklch(0.698 0.191 302);    /* #B57BFF */
+
+  --background: oklch(0.16 0.045 280);       /* ink #0A0A20 */
+  --foreground: oklch(0.958 0.02 279.9);
+  --card: oklch(0.217 0.072 277.4);          /* night #13143A */
+  --card-foreground: oklch(0.958 0.02 279.9);
+  --popover: oklch(0.24 0.076 277.4);
+  --popover-foreground: oklch(0.958 0.02 279.9);
+  --primary: oklch(0.916 0.21 118.7);        /* lime */
+  --primary-foreground: oklch(0.16 0.045 280);
+  --secondary: oklch(0.261 0.08 277.3);
+  --secondary-foreground: oklch(0.958 0.02 279.9);
+  --muted: oklch(0.255 0.07 277.4);
+  --muted-foreground: oklch(0.748 0.065 281.7); /* haze #A6A9D6 */
+  --accent: oklch(0.28 0.08 277.4);
+  --accent-foreground: oklch(0.958 0.02 279.9);
+  --destructive: oklch(0.673 0.215 20.1);
   --border: oklch(1 0 0 / 9%);
   --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.74 0.13 175);
+  --ring: oklch(0.664 0.247 359.3);
 
-  --success: oklch(0.74 0.15 160);
-  --success-soft: oklch(0.3 0.06 160);
-  --warning: oklch(0.8 0.15 75);
-  --warning-soft: oklch(0.32 0.06 75);
-  --danger: oklch(0.7 0.18 20);
-  --danger-soft: oklch(0.3 0.07 20);
-  --info: oklch(0.72 0.14 265);
-  --info-soft: oklch(0.3 0.07 265);
+  --success: oklch(0.845 0.13 165);          /* mint */
+  --warning: oklch(0.859 0.158 85.8);        /* sun */
+  --danger: oklch(0.673 0.215 20.1);         /* cherry */
+  --info: oklch(0.769 0.131 215.4);          /* cyan */
+  --blue: oklch(0.7 0.16 258);               /* trend graphs, leave */
 
-  --chart-1: oklch(0.74 0.13 175);
-  --chart-2: oklch(0.7 0.15 265);
-  --chart-3: oklch(0.8 0.15 75);
-  --chart-4: oklch(0.7 0.18 20);
-  --chart-5: oklch(0.72 0.15 310);
+  --chart-1: oklch(0.916 0.21 118.7);        /* lime: present */
+  --chart-2: oklch(0.769 0.131 215.4);       /* cyan */
+  --chart-3: oklch(0.859 0.158 85.8);        /* sun */
+  --chart-4: oklch(0.673 0.215 20.1);        /* cherry */
+  --chart-5: oklch(0.698 0.191 302);         /* violet */
 
-  --sidebar: oklch(0.18 0.016 255);
-  --sidebar-foreground: oklch(0.92 0.006 255);
-  --sidebar-primary: oklch(0.74 0.13 175);
-  --sidebar-primary-foreground: oklch(0.18 0.03 175);
-  --sidebar-accent: oklch(0.26 0.02 220);
-  --sidebar-accent-foreground: oklch(0.96 0.006 255);
+  --sidebar: oklch(0.19 0.06 278);
+  --sidebar-foreground: oklch(0.9 0.025 280);
+  --sidebar-primary: oklch(0.916 0.21 118.7);
+  --sidebar-primary-foreground: oklch(0.16 0.045 280);
+  --sidebar-accent: oklch(0.916 0.21 118.7 / 0.12);
+  --sidebar-accent-foreground: oklch(0.98 0.01 280);
   --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.74 0.13 175);
+  --sidebar-ring: oklch(0.664 0.247 359.3);
 
-  --glow: oklch(0.74 0.13 175 / 0.18);
+  --glow-a: oklch(0.916 0.21 118.7 / 0.1);
+  --glow-b: oklch(0.664 0.247 359.3 / 0.12);
+}
+
+/* Soft tints derived from each status color */
+:root,
+.dark {
+  --success-soft: color-mix(in oklch, var(--success) 14%, var(--card));
+  --warning-soft: color-mix(in oklch, var(--warning) 16%, var(--card));
+  --danger-soft: color-mix(in oklch, var(--danger) 14%, var(--card));
+  --info-soft: color-mix(in oklch, var(--info) 14%, var(--card));
+  --blue-soft: color-mix(in oklch, var(--blue) 14%, var(--card));
 }
 
 @layer base {
@@ -174,17 +209,60 @@
   html {
     @apply font-sans;
   }
-  h1, h2, h3 {
-    font-family: var(--font-heading);
-    letter-spacing: -0.02em;
-  }
+}
+
+/* Anton: page titles, big counts only */
+.font-display,
+.page-title {
+  font-family: var(--font-display), "Impact", "Arial Narrow Bold", sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+}
+
+/* Lime slash underline under page titles */
+.page-title {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+  align-self: flex-start;
+  padding-bottom: 0.35rem;
+}
+.page-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 4px;
+  background: var(--brand);
+  transform: skewX(-20deg);
+}
+:root:not(.dark) .page-title::after {
+  background: var(--primary);
+  box-shadow: inset 0 -2px 0 var(--brand);
+}
+
+/* Thin brand stripe — top bar and sidebar only */
+.slice-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, #ff2d8f 0 25%, #a646f0 25% 50%, #ffc83d 50% 75%, #22c8e8 75%);
+}
+
+/* Sign-in brand panel: deep Pastry navy with soft pink and lime light from the logo. */
+.pastry-panel {
+  background:
+    radial-gradient(circle at 85% 12%, oklch(0.656 0.212 354.3 / 0.32), transparent 42%),
+    radial-gradient(circle at 8% 96%, oklch(0.842 0.182 116.5 / 0.09), transparent 32%),
+    linear-gradient(155deg, oklch(0.222 0.091 276) 0%, oklch(0.273 0.116 275.6) 55%, oklch(0.32 0.128 284.1) 100%);
 }
 
 /* soft ambient background glow */
 .app-backdrop {
   background:
-    radial-gradient(60rem 30rem at 10% -10%, var(--glow), transparent 60%),
-    radial-gradient(40rem 24rem at 110% 10%, oklch(0.7 0.14 265 / 0.12), transparent 60%),
+    radial-gradient(60rem 30rem at 10% -10%, var(--glow-a), transparent 60%),
+    radial-gradient(40rem 24rem at 110% 10%, var(--glow-b), transparent 60%),
     var(--background);
 }
 

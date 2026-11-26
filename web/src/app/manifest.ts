@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Presence — AI Attendance",
+    name: "Pastry Presence — Attendance",
     short_name: "Presence",
-    description: "Face-recognition attendance for the office.",
+    description: "Face-recognition attendance, leave and payroll for Pastry Marketing.",
     start_url: "/dashboard",
     display: "standalone",
-    background_color: "#f7f9fb",
-    theme_color: "#1f9e8f",
+    background_color: "#0a0a20",
+    theme_color: "#0a0a20",
     icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
   };
 }

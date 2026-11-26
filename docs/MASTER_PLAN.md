@@ -223,6 +223,14 @@ early   = scheduled_end − check_out    (if > grace)
 overtime= check_out − scheduled_end    (if > overtime-after)
 status  = absent | half_day | late | present   (leave/holiday set separately)
 ```
+**Extra time (recorded, not paid):** `early arrival (before start) + time after scheduled end` per day
+(all of it on a day off). Shown on the dashboard (live feed "+12m early", Extra time card with
+today / week / top people), in reports and as an **information line on payslips (amount 0)**.
+It is never added to salary. Paid overtime is a separate per-employee option, off by default.
+
+**Dashboard colour meaning:** green = on time / good · amber = within grace / watch ·
+red = late, absent, team below 85% ("Needs improvement") · blue = trends and leave.
+
 Example: Morning 09:00–17:00, in 09:25, out 17:40 → gross 8h15, net 7h15, late 25 min, overtime 40 min, status **late**.
 Example: Evening 18:00–02:00, in 17:55, out 02:45 (next day) → net 8h20, overtime 45 min, status **present**, date = start date.
 

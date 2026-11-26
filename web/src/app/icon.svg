@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Presence app icon: Pastry Marketing cake slice (from the Pastry wordmark) on navy -->
+  <defs>
+    <radialGradient id="g" cx="380" cy="80" r="460" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3a2a86"/>
+      <stop offset="1" stop-color="#121244"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <g transform="translate(152 84) scale(8)">
+    <path d="M15.5 6.5c0-2.2 1.2-4.2 3.5-5.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+    <circle cx="14.5" cy="9" r="3.6" fill="#e0245e"/>
+    <path d="M2 17 L24 13 L24 20 L2 24 Z" fill="#ec4899"/>
+    <path d="M2 26 L24 22 L24 29 L2 33 Z" fill="#c5d92d"/>
+    <path d="M2 35 L24 31 L24 38 L2 42 Z" fill="#8b8bd8"/>
+  </g>
+</svg>

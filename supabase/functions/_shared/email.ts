@@ -21,7 +21,10 @@ export type EmailContent = {
   footnote?: string;
 };
 
-const BRAND = "#1f9e8f";
+// Pastry Marketing logo colours: navy buttons with lime text
+const BRAND = "#1B1B5E";
+const BRAND_TEXT = "#C5D92D";
+const COMPANY = "Pastry Marketing";
 const TONES: Record<Tone, { fg: string; bg: string; border: string }> = {
   success: { fg: "#0f7a55", bg: "#e6f6ef", border: "#b7e4d0" },
   warning: { fg: "#93600a", bg: "#fdf3dc", border: "#f1d79a" },
@@ -37,7 +40,7 @@ const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial
 
 function button(label: string, url: string, primary = true) {
   const bg = primary ? BRAND : "#ffffff";
-  const fg = primary ? "#ffffff" : BRAND;
+  const fg = primary ? BRAND_TEXT : BRAND;
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="display:inline-table;margin:4px 8px 4px 0"><tr>
     <td align="center" bgcolor="${bg}" style="border-radius:10px;border:1px solid ${BRAND}">
       <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="${esc(url)}" style="height:44px;v-text-anchor:middle;width:200px" arcsize="22%" fillcolor="${bg}" strokecolor="${BRAND}"><center style="color:${fg};font-family:Arial;font-size:15px;font-weight:bold">${esc(label)}</center></v:roundrect><![endif]-->
@@ -121,6 +124,7 @@ export function renderEmail(c: EmailContent): { html: string; text: string } {
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
         <td width="32" height="32" align="center" valign="middle" bgcolor="${BRAND}" style="border-radius:9px;color:#fff;font-size:16px;font-weight:700;font-family:${FONT}">&#10003;</td>
         <td style="padding-left:10px;font-family:${FONT};font-size:18px;font-weight:700;color:#1d2433" class="strong">Presence</td>
+        <td style="padding-left:8px;font-family:${FONT};font-size:12px;color:#6b7486" class="muted">by <b>${COMPANY}</b></td>
       </tr></table>
     </td></tr>
     <tr><td class="card px" style="background:#ffffff;border:1px solid #e4e8ee;border-radius:16px;padding:32px 36px;font-family:${FONT}">
@@ -132,8 +136,9 @@ export function renderEmail(c: EmailContent): { html: string; text: string } {
       ${c.footnote ? `<p class="muted" style="margin:20px 0 0;font-size:13px;line-height:20px;color:#6b7486">${esc(c.footnote)}</p>` : ""}
     </td></tr>
     <tr><td class="px" align="center" style="padding:20px 24px;font-family:${FONT};font-size:12px;line-height:18px;color:#8a93a3">
-      <span class="muted">Automatic message from your office attendance system. You receive it because you have a Presence account.<br>
-      Questions? Reply to HR or open the app.</span>
+      <span class="muted">Automatic message from ${COMPANY}'s attendance system. You receive it because you have a Presence account.<br>
+      Questions? Reply to HR or open the app.<br><br>
+      &copy; 2026 ${COMPANY}. All rights reserved. This email and its contents are confidential and intended for ${COMPANY} staff only.</span>
     </td></tr>
   </table>
 </td></tr></table>
@@ -150,7 +155,7 @@ export function renderEmail(c: EmailContent): { html: string; text: string } {
     ...(c.checks ?? []).map((k) => `${k.passed ? "[ok]" : "[!!]"} ${k.label}${k.detail ? ` — ${k.detail}` : ""}`),
     c.cta ? `\n${c.cta.label}: ${c.cta.url}` : "",
     c.footnote ? `\n${c.footnote}` : "",
-    "\n—\nPresence · automatic message",
+    `\n—\n${COMPANY} · Presence attendance · automatic message\n© 2026 ${COMPANY}. Confidential — for ${COMPANY} staff only.`,
   ].filter((l) => l !== "").join("\n");
 
   return { html, text };

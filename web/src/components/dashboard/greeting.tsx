@@ -16,7 +16,7 @@ export function Greeting() {
       <p className="text-sm text-muted-foreground">
         {d.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
       </p>
-      <h1 className="text-2xl font-semibold md:text-3xl">{greet} 👋</h1>
+      <h1 className="page-title mt-1 text-4xl md:text-5xl">{greet}</h1>
     </>
   );
 }

@@ -81,6 +81,11 @@ export function LiveFeed({
                 <p className="truncate text-sm font-medium">{e.name}</p>
                 <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
                   <CameraIcon className="size-3" /> {e.camera} · {e.department}
+                  {e.extraMinutes ? (
+                    <span className="ml-1 font-medium text-success" title="Extra time — recorded, not paid">
+                      +{e.extraMinutes}m {e.type === "check_in" ? "early" : "extra"}
+                    </span>
+                  ) : null}
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1">

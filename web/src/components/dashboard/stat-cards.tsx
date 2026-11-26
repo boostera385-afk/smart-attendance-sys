@@ -32,7 +32,7 @@ const TONE: Record<Stat["tone"], { icon: string; bar: string }> = {
   success: { icon: "bg-success-soft text-success", bar: "bg-success" },
   warning: { icon: "bg-warning-soft text-warning", bar: "bg-warning" },
   danger: { icon: "bg-danger-soft text-danger", bar: "bg-danger" },
-  info: { icon: "bg-info-soft text-info", bar: "bg-info" },
+  info: { icon: "bg-blue-soft text-blue", bar: "bg-blue" },
 };
 
 export function StatCards({
@@ -60,6 +60,7 @@ export function StatCards({
             transition={{ delay: i * 0.07, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
             <Card className="relative gap-3 overflow-hidden p-4 transition-shadow hover:shadow-md md:p-5">
+              <span aria-hidden className={cn("absolute inset-x-0 top-0 h-1 opacity-80", TONE[s.tone].bar)} />
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{s.label}</span>
                 <span className={cn("grid size-8 place-items-center rounded-lg", TONE[s.tone].icon)}>
@@ -67,7 +68,7 @@ export function StatCards({
                 </span>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="font-heading text-3xl font-semibold md:text-4xl">
+                <span className="font-display text-4xl md:text-5xl">
                   <Counter value={s.value} />
                 </span>
                 {s.total ? <span className="text-sm text-muted-foreground">/ {s.total}</span> : null}

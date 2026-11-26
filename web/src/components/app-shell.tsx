@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandLockup, PropertyLine } from "@/components/brand";
 
 type NavItem = { href: string; label: string; icon: React.ElementType; soon?: boolean };
 
@@ -39,18 +40,11 @@ const NAV: NavItem[] = [
   { href: "/payroll", label: "Payroll", icon: WalletIcon, soon: true },
   { href: "/departments", label: "Departments", icon: Building2Icon, soon: true },
   { href: "/me", label: "My attendance", icon: UserCircleIcon, soon: true },
-  { href: "/settings", label: "Settings", icon: SettingsIcon, soon: true },
+  { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 function Logo() {
-  return (
-    <Link href="/dashboard" className="flex items-center gap-2.5 px-2">
-      <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-        <ScanFaceIcon className="size-4.5" />
-      </span>
-      <span className="font-heading text-lg font-semibold tracking-tight">Presence</span>
-    </Link>
-  );
+  return <BrandLockup className="px-2" />;
 }
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
@@ -88,11 +82,11 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
             {active && (
               <motion.span
                 layoutId="nav-active"
-                className="absolute inset-0 rounded-lg bg-sidebar-accent"
+                className="absolute inset-0 rounded-lg bg-sidebar-accent shadow-[inset_3px_0_0_var(--brand)]"
                 transition={{ type: "spring", stiffness: 400, damping: 32 }}
               />
             )}
-            <Icon className={cn("relative size-4", active && "text-primary")} />
+            <Icon className={cn("relative size-4", active && "text-foreground dark:text-brand")} />
             <span className="relative">{item.label}</span>
           </Link>
         );
@@ -101,16 +95,22 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-export function AppShell({ children, demo }: { children: React.ReactNode; demo: boolean }) {
+export function AppShell({ children, notice }: { children: React.ReactNode; notice?: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="app-backdrop flex min-h-dvh">
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col gap-6 border-r bg-sidebar/80 p-4 backdrop-blur lg:flex">
-        <Logo />
-        <NavList />
-        <div className="mt-auto rounded-xl border bg-card/60 p-3 text-xs text-muted-foreground">
-          <p className="font-medium text-foreground">No video is stored</p>
-          <p className="mt-1">Only a face snapshot per check-in/out, kept 30 days.</p>
+      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r bg-sidebar/90 backdrop-blur lg:flex">
+        <div className="slice-stripe" />
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4">
+          <Logo />
+          <NavList />
+          <div className="mt-auto flex flex-col gap-3">
+            <div className="rounded-xl border bg-card/60 p-3 text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">No video is stored</p>
+              <p className="mt-1">Only a face snapshot per check-in/out, kept 30 days.</p>
+            </div>
+            <PropertyLine className="border-t pt-4" />
+          </div>
         </div>
       </aside>
 
@@ -119,20 +119,21 @@ export function AppShell({ children, demo }: { children: React.ReactNode; demo: 
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <Logo />
           <NavList onNavigate={() => setOpen(false)} />
+          <PropertyLine className="mt-auto border-t pt-4" />
         </SheetContent>
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background/70 px-4 backdrop-blur md:px-6">
-          <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu" onClick={() => setOpen(true)}>
+          <div className="slice-stripe absolute inset-x-0 top-0 lg:hidden" />          <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu" onClick={() => setOpen(true)}>
             <MenuIcon className="size-5" />
           </Button>
           <div className="lg:hidden">
             <Logo />
           </div>
-          {demo && (
+          {notice && (
             <Badge variant="outline" className="ml-2 hidden border-warning/40 bg-warning-soft text-foreground sm:inline-flex">
-              Demo data — connect Supabase to go live
+              {notice}
             </Badge>
           )}
           <div className="ml-auto flex items-center gap-1">
