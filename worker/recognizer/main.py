@@ -146,25 +146,30 @@ class Worker:
                     cap = cv2.VideoCapture(url, cv2.CAP_FFMPEG)
                     if not cap.isOpened():
                         raise RuntimeError("stream did not open")
-                    self.state.camera_health[cam["id"]] = ("online", None)
-                    stream_failures = 0
+                    # EZVIZ starts the HLS stream on demand: the first segment can take 10–40 s
                     last = 0.0
-                    misses = 0
+                    got_frame = False
+                    last_ok = time.time()
                     while not shutdown.is_set() and cam["id"] in self.state.cameras:
                         if not cap.grab():
-                            misses += 1
-                            if misses > 50:
+                            if time.time() - last_ok > (15 if got_frame else 60):
                                 break
-                            time.sleep(0.1)
+                            time.sleep(0.2)
                             continue
-                        misses = 0
-                        now = time.time()
-                        if now - last >= 1 / fps:
+                        last_ok = time.time()
+                        if not got_frame:
+                            got_frame = True
+                            stream_failures = 0
+                            self.state.camera_health[cam["id"]] = ("online", None)
+                            log.info("%s: live stream receiving frames", cam["name"])
+                        if last_ok - last >= 1 / fps:
                             ok, frame = cap.retrieve()
                             if ok:
-                                last = now
+                                last = last_ok
                                 yield frame
                     cap.release()
+                    if not got_frame:
+                        raise RuntimeError("stream opened but sent no video for 60 s")
                     continue
                 except EzvizError as e:
                     self.state.camera_health[cam["id"]] = ("error", str(e))
@@ -326,6 +331,7 @@ class Worker:
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(threadName)s %(message)s")
+    logging.getLogger("httpx").setLevel(logging.WARNING)  # one line per HTTP call is too noisy
     signal.signal(signal.SIGTERM, lambda *_: shutdown.set())
     signal.signal(signal.SIGINT, lambda *_: shutdown.set())
     Worker(Config.load()).run()
