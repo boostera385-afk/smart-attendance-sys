@@ -9,7 +9,7 @@ import { FaceEnroll } from "@/components/face-enroll";
 import { StatusPill } from "@/components/form-bits";
 import { listFacePhotos } from "@/lib/faces";
 import { fmtDate, fmtDateTime, fmtDays, fmtMoney, todayLocal } from "@/lib/format";
-import { approveFaces, deleteFacePhoto, uploadEmployeeFaces } from "../actions";
+import { approveFaces, deleteAllFacePhotos, deleteFacePhoto, uploadEmployeeFaces } from "../actions";
 import { formOptions, loadEmployee } from "../data";
 import { EmployeeForm } from "../employee-form";
 import { AccountActions } from "./account-actions";
@@ -92,6 +92,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
             approved={faces.approved}
             upload={uploadEmployeeFaces.bind(null, e.id)}
             remove={deleteFacePhoto.bind(null, e.id)}
+            removeAll={deleteAllFacePhotos.bind(null, e.id)}
             approve={approveFaces.bind(null, e.id)}
           />
         </CardContent>

@@ -116,7 +116,7 @@ export async function loadEmployee(id: string) {
       requiredHours: (s.required_minutes ?? 480) / 60,
       workingDays: s.working_days,
       breakMinutes: s.break_minutes,
-      breakMode: s.break_mode === "paid" ? "paid" : "deduct",
+      breakMode: "paid",
       graceIn: s.grace_in_minutes,
       graceOut: s.grace_out_minutes,
       overtimeAfter: s.overtime_after_minutes,

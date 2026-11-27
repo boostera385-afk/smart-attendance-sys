@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { fail, isAdminRole, requireRole, type ActionResult, type AppRole, type Viewer } from "@/lib/auth";
 import { validateEmployee, type EmployeeInput } from "@/lib/employees";
-import { deleteAllFaceData, storeFacePhotos } from "@/lib/faces";
+import { deleteAllFaceData, deleteFacePhotoById, demoteIfNoApprovedFace, storeFacePhotos } from "@/lib/faces";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -39,7 +39,7 @@ async function saveSchedule(employeeId: string, i: EmployeeInput) {
     p_end: i.kind === "fixed" ? i.end : i.end || "18:00",
     p_working_days: [...new Set(i.workingDays)].sort(),
     p_break_minutes: Math.round(i.breakMinutes),
-    p_break_mode: i.breakMode,
+    p_break_mode: "paid",
     p_kind: i.kind,
     p_required_minutes: i.kind === "flexible" ? Math.round(i.requiredHours * 60) : null,
     p_grace_in: Math.round(i.graceIn),
@@ -307,14 +307,29 @@ export async function approveFaces(id: string): Promise<ActionResult> {
 export async function deleteFacePhoto(employeeId: string, photoId: string): Promise<ActionResult> {
   try {
     const v = await requireAdmin();
-    const admin = createAdminClient();
-    const { data: p } = await admin.from("face_photos").select("path").eq("id", photoId)
-      .eq("employee_id", employeeId).eq("organization_id", v.orgId).maybeSingle();
-    if (!p) return { ok: false, message: "Photo not found." };
-    await admin.storage.from("faces").remove([p.path]);
-    await admin.from("face_photos").delete().eq("id", photoId); // embeddings cascade
+    await deleteFacePhotoById(v.orgId, employeeId, photoId);
+    await audit(v, "delete_face_photo", employeeId, { photo_id: photoId });
     revalidatePath(`/employees/${employeeId}`);
+    revalidatePath("/employees");
     return { ok: true, message: "Photo deleted." };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+/** Start enrollment over: removes every photo and face sample of this employee. */
+export async function deleteAllFacePhotos(employeeId: string): Promise<ActionResult> {
+  try {
+    const v = await requireAdmin();
+    const supabase = await createClient();
+    const { data: emp } = await supabase.from("employees").select("id").eq("id", employeeId).single();
+    if (!emp) return { ok: false, message: "Employee not found." };
+    const n = await deleteAllFaceData(employeeId);
+    await demoteIfNoApprovedFace(employeeId);
+    await audit(v, "delete_all_face_photos", employeeId, { count: n });
+    revalidatePath(`/employees/${employeeId}`);
+    revalidatePath("/employees");
+    return { ok: true, message: n ? `${n} photo${n === 1 ? "" : "s"} and all face samples deleted.` : "No photos to delete." };
   } catch (e) {
     return fail(e);
   }

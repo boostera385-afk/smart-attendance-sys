@@ -156,7 +156,7 @@ Work schedule                                   Quick-fill: [ Preset ▼ ] (opti
   Type          (•) Fixed hours   ( ) Flexible (required hours only)
   Start time    [09:00]     End time  [17:00]     → 8h 00m (crosses midnight auto-detected)
   Working days  [Mon][Tue][Wed][Thu][Fri][Sat][ Sun ]
-  Break         [60] min    Mode [Deducted ▼]     Window (optional) [13:00]–[14:00]
+  Break         [60] min    (always paid)     Window (optional) [13:00]–[14:00]
   Effective from [2026-12-01]
   ▸ Advanced: late grace [15] · early-leave grace [10] · overtime after [30] · half day < [4h] · absent < [1h]
                                                                      [ Save ]
@@ -177,7 +177,7 @@ Work schedule                                   Quick-fill: [ Preset ▼ ] (opti
 | Type | Fixed | Fixed | `fixed` = set start/end · `flexible` = only required hours count |
 | Start → End | 09:00 → 17:00 | 18:00 → 02:00 | End ≤ start ⇒ **crosses midnight**; the day belongs to the **start date** |
 | Working days | Mon–Sat | Mon–Sun | Days off are never marked absent |
-| Break | 60 min, **deduct** | 30 min, **deduct** | see break modes below |
+| Break | 60 min, **paid** | 30 min, **paid** | see break modes below |
 | Break window (info) | 13:00–14:00 | 22:00–22:30 | Shown to staff; not enforced |
 | Late grace | 15 min | 15 min | Late if check-in > start + grace |
 | Early-leave grace | 10 min | 10 min | Early leave if check-out < end − grace |
@@ -189,8 +189,8 @@ Work schedule                                   Quick-fill: [ Preset ▼ ] (opti
 ### Break modes (best practice: **don't track breaks**)
 | Mode | Behaviour | When to use |
 |---|---|---|
-| **deduct** (default) | Fixed break minutes subtracted from worked time automatically. Nobody needs to check out/in for lunch. | Most offices |
-| **paid** | Break counts as work time; nothing deducted. | Paid breaks |
+| ~~deduct~~ | Not used. **Company policy (2026-11-27): breaks are always paid**, enforced by a DB trigger on `shifts` / `attendance_days`. | — |
+| **paid** (always) | Break counts as work time; nothing deducted. | This company |
 | **tracked** (optional, later) | Time between an Exit sighting and the next Entry sighting during the shift counts as break; deducts actual time. | Only if management needs it |
 
 Going out during the day **never** creates a check-out: only the **last** sighting of the shift-day is used,
@@ -217,7 +217,7 @@ Check-in time T for employee →
 ### Calculations (Postgres function `recalc_attendance_day`, verified with test cases)
 ```
 gross   = check_out − check_in
-net     = gross − break_minutes        (mode = deduct)
+net     = gross                        (breaks are always paid)
 late    = check_in − scheduled_start   (if > grace)
 early   = scheduled_end − check_out    (if > grace)
 overtime= check_out − scheduled_end    (if > overtime-after)

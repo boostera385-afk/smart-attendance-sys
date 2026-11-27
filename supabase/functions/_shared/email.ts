@@ -261,7 +261,7 @@ export function templateFor(n: TemplateInput): EmailContent {
         greeting: hi,
         intro: `Here is your work schedule starting ${fmtDate(d.effective_from)}.`,
         badge: { label: "Schedule update", tone: "info" },
-        rows: [["Hours", hours], ["Working days", dayList], ["Break", `${d.break_minutes} min (no check-out needed)`], ["Effective from", fmtDate(d.effective_from)]],
+        rows: [["Hours", hours], ["Working days", dayList], ["Break", `${d.break_minutes} min, paid (no check-out needed)`], ["Effective from", fmtDate(d.effective_from)]],
         cta: { label: "Open my schedule", url: url("/me") },
       };
     }

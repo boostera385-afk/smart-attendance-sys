@@ -9,7 +9,7 @@ import { getViewer } from "@/lib/auth";
 import { listFacePhotos } from "@/lib/faces";
 import { addDays, fmtDate, fmtDays, fmtMinutes, fmtMoney, fmtMonth, fmtTime, todayLocal } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
-import { uploadMyFaces } from "./actions";
+import { deleteMyFacePhoto, uploadMyFaces } from "./actions";
 
 export const metadata: Metadata = { title: "My attendance" };
 
@@ -69,7 +69,7 @@ async function Me() {
               {s ? (s.kind === "flexible" ? fmtMinutes(s.required_minutes) : `${s.start_time.slice(0, 5)}–${s.end_time.slice(0, 5)}`) : "—"}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">{s ? `${fmtDays(s.working_days)} · ${s.break_minutes} min break` : "Not set"}</CardContent>
+          <CardContent className="text-sm text-muted-foreground">{s ? `${fmtDays(s.working_days)} · ${s.break_minutes} min paid break` : "Not set"}</CardContent>
         </Card>
         <Card>
           <CardHeader>
@@ -137,7 +137,14 @@ async function Me() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <FaceEnroll photos={faces.photos} approved={faces.approved} upload={uploadMyFaces} />
+          <FaceEnroll
+            photos={faces.photos}
+            approved={faces.approved}
+            upload={uploadMyFaces}
+            remove={deleteMyFacePhoto}
+            maxPhotos={15}
+            canRemoveApproved={false}
+          />
         </CardContent>
       </Card>
 

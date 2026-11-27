@@ -37,7 +37,7 @@ export async function setOverride(input: {
       }
       // copy the employee's normal rules (break, grace…) onto the one-day hours
       const { data: asg } = await supabase.from("employee_shifts")
-        .select("shifts(break_minutes, break_mode, grace_in_minutes, grace_out_minutes, overtime_after_minutes)")
+        .select("shifts(break_minutes, grace_in_minutes, grace_out_minutes, overtime_after_minutes)")
         .eq("employee_id", input.employeeId).lte("effective_from", input.date)
         .order("effective_from", { ascending: false }).limit(1).maybeSingle();
       const b = (asg?.shifts ?? null) as unknown as Record<string, unknown> | null;
@@ -50,7 +50,7 @@ export async function setOverride(input: {
         end_time: input.end,
         working_days: [1, 2, 3, 4, 5, 6, 7],
         break_minutes: (b?.break_minutes as number) ?? 60,
-        break_mode: (b?.break_mode as string) ?? "deduct",
+        break_mode: "paid",
         grace_in_minutes: (b?.grace_in_minutes as number) ?? 15,
         grace_out_minutes: (b?.grace_out_minutes as number) ?? 10,
         overtime_after_minutes: (b?.overtime_after_minutes as number) ?? 30,

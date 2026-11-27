@@ -22,7 +22,8 @@ export type EmployeeInput = {
   requiredHours: number;
   workingDays: number[];
   breakMinutes: number;
-  breakMode: "deduct" | "paid";
+  /** Company policy: breaks are always paid (also enforced in the database). */
+  breakMode: "paid";
   graceIn: number;
   graceOut: number;
   overtimeAfter: number;

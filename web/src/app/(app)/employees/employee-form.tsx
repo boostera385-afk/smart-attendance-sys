@@ -53,7 +53,7 @@ export function EmployeeForm({ departments, branches, canAssignAdmin, initial, t
     requiredHours: 8,
     workingDays: [1, 2, 3, 4, 5, 6],
     breakMinutes: 60,
-    breakMode: "deduct",
+    breakMode: "paid",
     graceIn: 15,
     graceOut: 10,
     overtimeAfter: 30,
@@ -259,10 +259,7 @@ export function EmployeeForm({ departments, branches, canAssignAdmin, initial, t
                 <Input id="break" type="number" min={0} max={240} value={f.breakMinutes} onChange={(e) => set("breakMinutes", Number(e.target.value))} />
               </Field>
               <Field label="Break is" htmlFor="breakMode">
-                <NativeSelect id="breakMode" value={f.breakMode} onChange={(e) => set("breakMode", e.target.value as "deduct" | "paid")}>
-                  <option value="deduct">Deducted from hours</option>
-                  <option value="paid">Paid (not deducted)</option>
-                </NativeSelect>
+                <p id="breakMode" className="flex h-8 items-center text-sm text-muted-foreground">Paid, never deducted</p>
               </Field>
               <Field label="Late after (min)" htmlFor="graceIn">
                 <Input id="graceIn" type="number" min={0} max={120} value={f.graceIn} onChange={(e) => set("graceIn", Number(e.target.value))} />
