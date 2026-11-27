@@ -20,3 +20,11 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
   if (error) return { error: "Incorrect email or password." };
   redirect(safeNext);
 }
+
+export async function signOut() {
+  if (isSupabaseConfigured) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  }
+  redirect("/login");
+}

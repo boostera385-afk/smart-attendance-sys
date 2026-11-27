@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   BarChart3Icon,
   Building2Icon,
@@ -12,6 +12,7 @@ import {
   CameraIcon,
   Clock3Icon,
   LayoutDashboardIcon,
+  LogOutIcon,
   MenuIcon,
   ScanFaceIcon,
   SettingsIcon,
@@ -25,33 +26,73 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLockup, PropertyLine } from "@/components/brand";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { signOut } from "@/app/login/actions";
 
-type NavItem = { href: string; label: string; icon: React.ElementType; soon?: boolean };
+type Role = "super_admin" | "admin" | "manager" | "employee";
+type NavItem = { href: string; label: string; icon: React.ElementType; roles: Role[]; soon?: boolean };
+
+const ALL: Role[] = ["super_admin", "admin", "manager", "employee"];
+const ADMINS: Role[] = ["super_admin", "admin"];
+const LEADS: Role[] = ["super_admin", "admin", "manager"];
 
 const NAV: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
-  { href: "/attendance", label: "Attendance", icon: CalendarCheckIcon, soon: true },
-  { href: "/employees", label: "Employees", icon: UsersIcon, soon: true },
-  { href: "/unknown", label: "Unknown faces", icon: ScanFaceIcon, soon: true },
-  { href: "/shifts", label: "Schedules & roster", icon: Clock3Icon, soon: true },
-  { href: "/cameras", label: "Cameras", icon: CameraIcon, soon: true },
-  { href: "/reports", label: "Reports", icon: BarChart3Icon, soon: true },
-  { href: "/leaves", label: "Leaves", icon: CalendarOffIcon, soon: true },
-  { href: "/payroll", label: "Payroll", icon: WalletIcon, soon: true },
-  { href: "/departments", label: "Departments", icon: Building2Icon, soon: true },
-  { href: "/me", label: "My attendance", icon: UserCircleIcon, soon: true },
-  { href: "/settings", label: "Settings", icon: SettingsIcon },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon, roles: LEADS },
+  { href: "/me", label: "My attendance", icon: UserCircleIcon, roles: ALL },
+  { href: "/attendance", label: "Attendance", icon: CalendarCheckIcon, roles: LEADS },
+  { href: "/employees", label: "Employees", icon: UsersIcon, roles: ADMINS },
+  { href: "/unknown", label: "Unknown faces", icon: ScanFaceIcon, roles: ADMINS },
+  { href: "/shifts", label: "Schedules & roster", icon: Clock3Icon, roles: LEADS },
+  { href: "/cameras", label: "Cameras", icon: CameraIcon, roles: ADMINS },
+  { href: "/reports", label: "Reports", icon: BarChart3Icon, roles: LEADS },
+  { href: "/leaves", label: "Leaves", icon: CalendarOffIcon, roles: ALL },
+  { href: "/payroll", label: "Payroll", icon: WalletIcon, roles: ADMINS },
+  { href: "/departments", label: "Departments", icon: Building2Icon, roles: ADMINS },
+  { href: "/settings", label: "Settings", icon: SettingsIcon, roles: ADMINS },
 ];
+
+type Me = { role: Role; email: string } | null;
+
+/** Role decides which menu items show. Pages and data are still protected on the server (RLS + checks). */
+function useMe(): Me {
+  const [me, setMe] = useState<Me>(isSupabaseConfigured ? null : { role: "super_admin", email: "demo" });
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    const supabase = createClient();
+    let alive = true;
+    (async () => {
+      const [{ data: u }, { data: role }] = await Promise.all([supabase.auth.getUser(), supabase.rpc("current_app_role")]);
+      if (alive && role) setMe({ role: role as Role, email: u.user?.email ?? "" });
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return me;
+}
 
 function Logo() {
   return <BrandLockup className="px-2" />;
 }
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
+function NavSkeleton() {
   return (
-    <nav className="flex flex-col gap-0.5">
-      {NAV.map((item) => {
+    <div className="flex flex-col gap-0.5">
+      {Array.from({ length: 6 }, (_, i) => (
+        <span key={i} className="my-1 h-7 animate-pulse rounded-lg bg-muted/60" />
+      ))}
+    </div>
+  );
+}
+
+function NavList({ onNavigate, me }: { onNavigate?: () => void; me: Me }) {
+  const pathname = usePathname();
+  const items = me ? NAV.filter((i) => i.roles.includes(me.role)) : [];
+  return (
+    <nav className="flex flex-col gap-0.5" aria-busy={!me}>
+      {!me && <NavSkeleton />}
+      {items.map((item) => {
         const active = pathname.startsWith(item.href);
         const Icon = item.icon;
         if (item.soon) {
@@ -95,16 +136,35 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
+function UserBox({ me }: { me: Me }) {
+  if (!me || !isSupabaseConfigured) return null;
+  return (
+    <form action={signOut} className="flex items-center gap-2 rounded-xl border bg-card/60 p-2 pl-3 text-xs">
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-medium text-foreground">{me.email}</span>
+        <span className="text-muted-foreground">{me.role.replace("_", " ")}</span>
+      </span>
+      <Button type="submit" variant="ghost" size="icon-sm" aria-label="Sign out" title="Sign out">
+        <LogOutIcon />
+      </Button>
+    </form>
+  );
+}
+
 export function AppShell({ children, notice }: { children: React.ReactNode; notice?: string }) {
   const [open, setOpen] = useState(false);
+  const me = useMe();
   return (
     <div className="app-backdrop flex min-h-dvh">
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r bg-sidebar/90 backdrop-blur lg:flex">
         <div className="slice-stripe" />
         <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4">
           <Logo />
-          <NavList />
+          <Suspense fallback={<NavSkeleton />}>
+            <NavList me={me} />
+          </Suspense>
           <div className="mt-auto flex flex-col gap-3">
+            <UserBox me={me} />
             <div className="rounded-xl border bg-card/60 p-3 text-xs text-muted-foreground">
               <p className="font-medium text-foreground">No video is stored</p>
               <p className="mt-1">Only a face snapshot per check-in/out, kept 30 days.</p>
@@ -118,7 +178,10 @@ export function AppShell({ children, notice }: { children: React.ReactNode; noti
         <SheetContent side="left" className="w-72 gap-6 p-4">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <Logo />
-          <NavList onNavigate={() => setOpen(false)} />
+          <Suspense fallback={<NavSkeleton />}>
+            <NavList me={me} onNavigate={() => setOpen(false)} />
+          </Suspense>
+          <UserBox me={me} />
           <PropertyLine className="mt-auto border-t pt-4" />
         </SheetContent>
       </Sheet>

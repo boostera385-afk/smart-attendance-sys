@@ -30,6 +30,7 @@ Deno.serve(async (req) => {
     .from("notifications")
     .select("id,type,to_email,to_name,subject,data,attempts")
     .eq("status", "pending")
+    .eq("channel", "email") // whatsapp / slack rows are sent by their own senders (planned)
     .lte("send_after", new Date().toISOString())
     .order("id")
     .limit(BATCH);

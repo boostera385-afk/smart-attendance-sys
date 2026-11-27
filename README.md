@@ -10,8 +10,8 @@ Face-recognition office attendance using existing **EZVIZ** cameras — installa
 | `web/` | Next.js PWA dashboard (Tailwind v4, shadcn/ui, Motion, Recharts, OKLCH theme) |
 | `supabase/migrations/` | Database schema, RLS, schedules, payroll, leave review, cron jobs |
 | `supabase/functions/` | Edge Functions: `send-notifications` (emails), `review-leave` (AI leave review), shared email templates |
-| `worker/` | EZVIZ probe script (Phase 0); recognition worker comes in Phase 1 |
-| `docs/` | Master plan |
+| `worker/` | Recognition worker (`recognizer/`, Docker / Vercel Daemon) + EZVIZ probe script |
+| `docs/` | Master plan, env setup, **go-live checklist (`docs/DEPLOY.md`)** |
 
 ## Run the dashboard locally
 

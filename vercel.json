@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "daemons": {
+    "recognizer": {
+      "root": "worker/",
+      "entrypoint": "Dockerfile",
+      "instances": { "sin1": 1 },
+      "resources": { "requests": { "memory": "2Gi" } },
+      "terminationGracePeriodSeconds": 20,
+      "livenessProbe": {
+        "httpGet": { "port": 8080, "path": "/" },
+        "initialDelaySeconds": 120,
+        "periodSeconds": 30,
+        "timeoutSeconds": 5,
+        "failureThreshold": 4
+      }
+    }
+  }
+}
