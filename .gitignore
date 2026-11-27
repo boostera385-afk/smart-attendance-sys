@@ -32,3 +32,6 @@ Thumbs.db
 
 # worker face models (downloaded)
 worker/models/
+
+# local worker log
+worker/worker.log
