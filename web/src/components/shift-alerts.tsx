@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { getAlertSchedule, type AlertSchedule } from "@/app/(app)/alerts-actions";
+import { showSystemNotification } from "@/components/pwa";
 import { playChime, unlockAudio, type ChimeKind } from "@/lib/chime";
 import { TZ } from "@/lib/format";
 
@@ -103,15 +104,9 @@ export function ShiftAlerts() {
         duration: isEnd ? 60_000 : 20_000,
         action: isEnd ? { label: "Check out", onClick: () => router.push("/me") } : undefined,
       });
-      if (typeof Notification !== "undefined" && Notification.permission === "granted" && document.visibilityState !== "visible") {
-        try {
-          const n = new Notification(a.title, { body: a.body, icon: "/icon.svg", tag: `presence-${a.kind}`, silent: alertsEnabled() });
-          n.onclick = () => {
-            window.focus();
-            if (isEnd) router.push("/me");
-            n.close();
-          };
-        } catch {}
+      if (document.visibilityState !== "visible") {
+        // our chime already plays, so keep the OS sound off unless alert sounds are muted
+        void showSystemNotification(a.title, a.body, "/me", `presence-${a.kind}`, alertsEnabled());
       }
     },
     [router],

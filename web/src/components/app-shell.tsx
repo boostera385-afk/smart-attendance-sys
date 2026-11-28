@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { InstallButton } from "@/components/pwa";
 import { BrandLockup, PropertyLine } from "@/components/brand";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -200,6 +201,7 @@ export function AppShell({ children, notice }: { children: React.ReactNode; noti
             </Badge>
           )}
           <div className="ml-auto flex items-center gap-1">
+            <InstallButton />
             <ThemeToggle />
           </div>
         </header>

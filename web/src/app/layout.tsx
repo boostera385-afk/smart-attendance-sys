@@ -3,6 +3,7 @@ import { Anton, Geist_Mono, Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import { PwaRegister } from "@/components/pwa";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
@@ -16,7 +17,8 @@ export const metadata: Metadata = {
   authors: [{ name: "Pastry Marketing" }],
   creator: "Pastry Marketing",
   robots: { index: false, follow: false }, // internal application
-  appleWebApp: { capable: true, title: "Pastry Presence", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "Presence", statusBarStyle: "black-translucent" },
+  icons: { apple: "/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {
@@ -37,6 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster richColors position="top-right" />
+          <PwaRegister />
         </ThemeProvider>
       </body>
     </html>
