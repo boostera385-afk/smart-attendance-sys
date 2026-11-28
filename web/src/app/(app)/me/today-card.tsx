@@ -182,12 +182,15 @@ type Geo =
   | { state: "error"; message: string }
   | { state: "ok"; lat: number; lng: number; accuracy: number };
 
-function CheckDialog({ today: t, action, now, onClose }: {
+function CheckDialog({ today, action: openedAs, now, onClose }: {
   today: PortalToday;
   action: "check_in" | "check_out";
   now: number;
   onClose: (done: boolean) => void;
 }) {
+  // Freeze what the dialog was opened for: the page refreshes as soon as the check-in is saved,
+  // which would otherwise flip this dialog to "check out" while showing the success screen.
+  const [{ t, action }] = useState(() => ({ t: today, action: openedAs }));
   const c = dayClock(t, now);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
