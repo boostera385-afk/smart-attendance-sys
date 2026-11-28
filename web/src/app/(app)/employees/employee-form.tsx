@@ -52,7 +52,7 @@ export function EmployeeForm({ departments, branches, canAssignAdmin, initial, t
     end: "17:00",
     requiredHours: 8,
     workingDays: [1, 2, 3, 4, 5, 6],
-    breakMinutes: 60,
+    breakMinutes: 30,
     breakStart: "",
     breakMode: "paid",
     graceIn: 15,
