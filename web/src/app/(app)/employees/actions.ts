@@ -334,3 +334,27 @@ export async function deleteAllFacePhotos(employeeId: string): Promise<ActionRes
     return fail(e);
   }
 }
+
+export type SelfieRule = "default" | "required" | "not_required";
+
+/** Per-employee selfie rule for portal check-in. "default" follows Settings → Attendance. */
+export async function setSelfieRule(id: string, rule: SelfieRule): Promise<ActionResult> {
+  try {
+    const v = await requireAdmin();
+    const value = { default: null, required: true, not_required: false }[rule];
+    if (value === undefined) return { ok: false, message: "Invalid option." };
+    const supabase = await createClient();
+    const { data, error } = await supabase.from("employees").update({ selfie_required: value }).eq("id", id).select("id").maybeSingle();
+    if (error) throw error;
+    if (!data) return { ok: false, message: "Employee not found." };
+    await audit(v, "set_selfie_rule", id, { selfie_required: value });
+    revalidatePath(`/employees/${id}`);
+    revalidatePath("/employees");
+    return {
+      ok: true,
+      message: rule === "default" ? "Selfie follows the company setting." : rule === "required" ? "Selfie is always required for this employee." : "Selfie is not required for this employee.",
+    };
+  } catch (e) {
+    return fail(e);
+  }
+}

@@ -249,9 +249,10 @@ class Worker:
                 "p_camera": cam["id"], "p_employee": emp, "p_confidence": round(score, 3), "p_snapshot": path,
             }) or {}
             action = res.get("action")
-            if path and action not in ("check_in", "check_out"):
+            kept = ("check_in", "check_out", "shadow_check_in")  # shadow = camera test mode (portal is official)
+            if path and action not in kept:
                 self.db.remove("snapshots", [path])  # plain sightings keep no image
-            if action in ("check_in", "check_out"):
+            if action in kept:
                 log.info("%s: %s %s (%.2f)", cam["name"], action, emp[:8], score)
         except Exception as e:  # noqa: BLE001
             log.warning("record_sighting: %s", e)

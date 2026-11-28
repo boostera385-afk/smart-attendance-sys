@@ -21,8 +21,8 @@ export async function loadDashboard() {
     supabase.from("employees").select("id, full_name, department_id, departments(name)").in("status", ["active", "pending_enrollment"]),
     supabase.from("attendance_days").select("employee_id, work_date, check_in_at, status, extra_minutes, scheduled_start")
       .gte("work_date", weekStart).lte("work_date", today),
-    supabase.from("attendance_events").select("id, employee_id, type, occurred_at, confidence, cameras(name)")
-      .in("type", ["check_in", "check_out"]).gte("occurred_at", startOfDay).order("occurred_at", { ascending: false }).limit(8),
+    supabase.from("attendance_events").select("id, employee_id, type, occurred_at, confidence, source, cameras(name)")
+      .in("type", ["check_in", "check_out"]).eq("shadow", false).gte("occurred_at", startOfDay).order("occurred_at", { ascending: false }).limit(8),
     supabase.from("cameras").select("name, role, status, fps, departments(name)").order("name"),
     supabase.from("leaves").select("employee_id").eq("status", "approved").lte("start_date", today).gte("end_date", today),
   ]);
@@ -82,7 +82,7 @@ export async function loadDashboard() {
     id: String(e.id),
     name: name.get(e.employee_id ?? "") ?? "Unknown",
     department: dept.get(e.employee_id ?? "") ?? "—",
-    camera: (e.cameras as unknown as { name: string } | null)?.name ?? "—",
+    camera: (e.cameras as unknown as { name: string } | null)?.name ?? (e.source === "web" ? "Portal" : "—"),
     type: e.type as "check_in" | "check_out",
     time: new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit" }).format(new Date(e.occurred_at)),
     status: e.type === "check_in" && lateToday.has(e.employee_id ?? "") ? "late" : "on_time",

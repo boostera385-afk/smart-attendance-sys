@@ -5,7 +5,7 @@ const MAX_BYTES = 6 * 1024 * 1024;
 export const MAX_FACE_PHOTOS = 20;
 
 /** Detects the real image type from the file's first bytes (the browser-sent MIME type can lie). */
-function sniffType(b: Uint8Array): "image/jpeg" | "image/png" | "image/webp" | null {
+export function sniffType(b: Uint8Array): "image/jpeg" | "image/png" | "image/webp" | null {
   if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "image/jpeg";
   if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return "image/png";
   if (String.fromCharCode(...b.slice(0, 4)) === "RIFF" && String.fromCharCode(...b.slice(8, 12)) === "WEBP") return "image/webp";

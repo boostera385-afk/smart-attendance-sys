@@ -293,10 +293,23 @@ export function templateFor(n: TemplateInput): EmailContent {
         preheader: `${d.kind === "check_out" ? "Checked out" : "Checked in"} at ${d.time}`,
         heading: d.kind === "check_out" ? "Checked out — see you tomorrow" : "Checked in — have a great day",
         greeting: hi,
-        intro: `Recorded by the ${d.camera} camera.`,
+        intro: d.via === "portal" ? `Recorded from the employee portal at ${d.camera}, with your selfie and location.` : `Recorded by the ${d.camera} camera.`,
         badge: d.late ? { label: `Late by ${d.late_minutes} min`, tone: "warning" } : { label: "On time", tone: "success" },
-        rows: [["Time", String(d.time)], ["Camera", String(d.camera)], ...(d.worked ? [["Worked today", String(d.worked)] as Row] : [])],
+        rows: [["Time", String(d.time)], [d.via === "portal" ? "Location" : "Camera", String(d.camera)],
+               ...(d.worked ? [["Worked today", String(d.worked)] as Row] : [])],
         cta: { label: "Not me? Report", url: url("/me") },
+      };
+
+    case "checkout_reminder":
+      return {
+        preheader: `You checked in at ${d.check_in} and haven't checked out yet.`,
+        heading: "Don't forget to check out",
+        greeting: hi,
+        intro: "Your shift has ended but no check-out is recorded. If you're done for the day, check out now. If the day closes without a check-out, no hours are counted until HR confirms them.",
+        badge: { label: "Check-out missing", tone: "warning" },
+        rows: [["Checked in", String(d.check_in)]],
+        cta: { label: "Check out now", url: url("/me") },
+        footnote: "Still working? Ignore this and check out when you leave.",
       };
 
     default:

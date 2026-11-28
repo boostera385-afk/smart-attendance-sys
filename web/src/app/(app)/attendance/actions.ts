@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { fail, isAdminRole, requireRole, type ActionResult } from "@/lib/auth";
+import { fail, isAdminRole, isApproverRole, requireRole, type ActionResult } from "@/lib/auth";
 import { localToIso, addDays } from "@/lib/format";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -42,6 +42,7 @@ export async function correctDay(input: {
       check_in_source: inAt ? (old?.check_in_at === inAt ? old.check_in_source : "manual") : null,
       check_out_source: outAt ? (old?.check_out_at === outAt ? old.check_out_source : "manual") : null,
       last_seen_at: outAt ?? inAt,
+      needs_review: false, // HR has now confirmed the hours
       status: "present" as const, // recalc sets the real status
       note: input.note.trim(),
     };
@@ -72,5 +73,64 @@ export async function correctDay(input: {
     return { ok: true, message: "Attendance corrected." };
   } catch (e) {
     return fail(e);
+  }
+}
+
+export type Evidence = {
+  id: number;
+  type: "check_in" | "check_out";
+  at: string;
+  source: string;
+  shadow: boolean;
+  camera: string | null;
+  confidence: number | null;
+  imageUrl: string | null;
+  lat: number | null;
+  lng: number | null;
+  accuracy: number | null;
+  distance: number | null;
+  office: string | null;
+  ip: string | null;
+};
+
+/** Selfies, camera snapshots and GPS for one employee-day (portal + camera, including test mode). */
+export async function getDayEvidence(
+  employeeId: string,
+  date: string,
+): Promise<{ ok: true; items: Evidence[] } | { ok: false; message: string }> {
+  try {
+    await requireRole(isApproverRole, "view attendance proof");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, message: "Invalid date." };
+    const supabase = await createClient(); // RLS: managers only see their own team
+    const { data, error } = await supabase.from("attendance_events")
+      .select("id, type, occurred_at, source, shadow, confidence, snapshot_path, latitude, longitude, accuracy_m, distance_m, ip, cameras(name), branches(name)")
+      .eq("employee_id", employeeId).in("type", ["check_in", "check_out"])
+      .gte("occurred_at", localToIso(date, "00:00")).lt("occurred_at", localToIso(addDays(date, 1), "12:00"))
+      .order("occurred_at").limit(20);
+    if (error) throw error;
+    const paths = (data ?? []).map((e) => e.snapshot_path).filter(Boolean) as string[];
+    const signed = paths.length ? (await createAdminClient().storage.from("snapshots").createSignedUrls(paths, 600)).data ?? [] : [];
+    const url = new Map(signed.map((s) => [s.path, s.signedUrl]));
+    return {
+      ok: true,
+      items: (data ?? []).map((e) => ({
+        id: e.id,
+        type: e.type as Evidence["type"],
+        at: e.occurred_at,
+        source: e.source,
+        shadow: e.shadow,
+        camera: (e.cameras as unknown as { name: string } | null)?.name ?? null,
+        confidence: e.confidence,
+        imageUrl: e.snapshot_path ? url.get(e.snapshot_path) ?? null : null,
+        lat: e.latitude,
+        lng: e.longitude,
+        accuracy: e.accuracy_m,
+        distance: e.distance_m,
+        office: (e.branches as unknown as { name: string } | null)?.name ?? null,
+        ip: e.ip,
+      })),
+    };
+  } catch (e) {
+    return { ok: false, message: fail(e).message };
   }
 }

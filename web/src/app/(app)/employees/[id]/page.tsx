@@ -12,15 +12,21 @@ import { fmtDate, fmtDateTime, fmtDays, fmtMoney, todayLocal } from "@/lib/forma
 import { approveFaces, deleteAllFacePhotos, deleteFacePhoto, uploadEmployeeFaces } from "../actions";
 import { formOptions, loadEmployee } from "../data";
 import { EmployeeForm } from "../employee-form";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { AccountActions } from "./account-actions";
+import { SelfieRuleSelect } from "./selfie-rule";
 
 export const metadata: Metadata = { title: "Employee" };
 
 async function Detail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [data, options] = await Promise.all([loadEmployee(id), formOptions()]);
-  const faces = await listFacePhotos(id);
   const { employee: e, account } = data;
+  const [faces, { data: cfg }] = await Promise.all([
+    listFacePhotos(id),
+    createAdminClient().rpc("attendance_config", { p_org: e.organization_id }), // page is admin-only (loadEmployee)
+  ]);
+  const companySelfie = (cfg as { require_selfie?: boolean } | null)?.require_selfie !== false;
 
   return (
     <>
@@ -35,7 +41,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
         <AccountActions id={e.id} active={e.status !== "inactive"} signedIn={Boolean(account?.lastSignIn)} today={todayLocal()} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Login</CardTitle>
@@ -77,6 +83,18 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
               </p>
             ))}
             {!data.salaryHistory.length && <p className="text-muted-foreground">No salary set.</p>}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Portal check-in</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SelfieRuleSelect
+              id={e.id}
+              companyRequires={companySelfie}
+              initial={e.selfie_required === null || e.selfie_required === undefined ? "default" : e.selfie_required ? "required" : "not_required"}
+            />
           </CardContent>
         </Card>
       </div>

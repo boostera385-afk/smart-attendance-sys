@@ -24,6 +24,21 @@ Then redeploy the email function (it now sends only `channel = email` rows):
 npx supabase functions deploy send-notifications
 ```
 
+### Portal attendance (2026-11-28)
+
+Self check-in/out from `/me` with selfie + office GPS, admin-selectable mode (Settings → Attendance), camera
+test mode, missing check-out flag. Apply both files **in order** (the enum value must commit first):
+
+```powershell
+npx supabase db query --remote -f supabase/migrations/20261128000000_web_source.sql
+npx supabase db query --remote -f supabase/migrations/20261128000100_portal_attendance.sql
+npx supabase functions deploy send-notifications
+```
+
+Then in the app: Settings → Attendance → set the office location (stand in the office, "Use my location",
+Save). Mode defaults to **Portal only** with selfie + GPS required. Redeploy the worker so it keeps
+test-mode snapshots.
+
 ## 2. Web app (Vercel)
 
 Environment variables (Production): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,

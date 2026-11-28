@@ -23,7 +23,7 @@ async function Attendance({ searchParams }: { searchParams: Promise<Record<strin
     supabase.from("employees").select("id, full_name, employee_code, joined_on, left_on, status, departments(name)")
       .neq("status", "invited").order("full_name"),
     supabase.from("attendance_days")
-      .select("employee_id, check_in_at, check_out_at, net_minutes, late_minutes, early_leave_minutes, extra_minutes, status, check_in_source, check_out_source, note, scheduled_start, scheduled_end")
+      .select("employee_id, check_in_at, check_out_at, net_minutes, late_minutes, early_leave_minutes, extra_minutes, status, check_in_source, check_out_source, needs_review, note, scheduled_start, scheduled_end")
       .eq("work_date", date),
   ]);
   const byEmp = new Map((days ?? []).map((d) => [d.employee_id, d]));
@@ -44,6 +44,9 @@ async function Attendance({ searchParams }: { searchParams: Promise<Record<strin
         extra: d?.extra_minutes ?? 0,
         status: d?.status ?? (date >= today ? "not_in" : "no_record"),
         source: [d?.check_in_source, d?.check_out_source].includes("manual") ? "manual" : d?.check_out_source === "auto" ? "auto" : d ? "camera" : null,
+        inSource: d?.check_in_source ?? null,
+        outSource: d?.check_out_source ?? null,
+        needsReview: d?.needs_review ?? false,
         note: d?.note ?? null,
         scheduledStart: d?.scheduled_start ?? null,
       };
@@ -55,7 +58,7 @@ async function Attendance({ searchParams }: { searchParams: Promise<Record<strin
 export default function AttendancePage({ searchParams }: PageProps<"/attendance">) {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
-      <PageHeader title="Attendance" description="Daily check-ins and check-outs from the cameras, with HR corrections." />
+      <PageHeader title="Attendance" description="Daily check-ins and check-outs (portal or camera) with selfie and location proof, and HR corrections." />
       <Card>
         <CardContent>
           <Suspense fallback={<Skeleton className="h-96 rounded-xl" />}>
