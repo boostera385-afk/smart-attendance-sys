@@ -53,6 +53,7 @@ export function EmployeeForm({ departments, branches, canAssignAdmin, initial, t
     requiredHours: 8,
     workingDays: [1, 2, 3, 4, 5, 6],
     breakMinutes: 60,
+    breakStart: "",
     breakMode: "paid",
     graceIn: 15,
     graceOut: 10,
@@ -258,8 +259,8 @@ export function EmployeeForm({ departments, branches, canAssignAdmin, initial, t
               <Field label="Break (min)" htmlFor="break">
                 <Input id="break" type="number" min={0} max={240} value={f.breakMinutes} onChange={(e) => set("breakMinutes", Number(e.target.value))} />
               </Field>
-              <Field label="Break is" htmlFor="breakMode">
-                <p id="breakMode" className="flex h-8 items-center text-sm text-muted-foreground">Paid, never deducted</p>
+              <Field label="Break starts" htmlFor="breakStart" hint="Paid, never deducted. Chime alert at this time">
+                <Input id="breakStart" type="time" value={f.breakStart} onChange={(e) => set("breakStart", e.target.value)} />
               </Field>
               <Field label="Late after (min)" htmlFor="graceIn">
                 <Input id="graceIn" type="number" min={0} max={120} value={f.graceIn} onChange={(e) => set("graceIn", Number(e.target.value))} />

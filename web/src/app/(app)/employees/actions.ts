@@ -30,6 +30,13 @@ async function resolveDepartment(orgId: string, input: EmployeeInput): Promise<s
   return data.id;
 }
 
+/** "13:00" + 60 → "14:00" (wraps past midnight) */
+function addMinutes(hhmm: string, minutes: number) {
+  const [h, m] = hhmm.split(":").map(Number);
+  const t = (((h * 60 + m + minutes) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
+}
+
 async function saveSchedule(employeeId: string, i: EmployeeInput) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_employee_schedule", {
@@ -40,6 +47,8 @@ async function saveSchedule(employeeId: string, i: EmployeeInput) {
     p_working_days: [...new Set(i.workingDays)].sort(),
     p_break_minutes: Math.round(i.breakMinutes),
     p_break_mode: "paid",
+    p_break_start: i.breakStart || null,
+    p_break_end: i.breakStart ? addMinutes(i.breakStart, Math.round(i.breakMinutes)) : null,
     p_kind: i.kind,
     p_required_minutes: i.kind === "flexible" ? Math.round(i.requiredHours * 60) : null,
     p_grace_in: Math.round(i.graceIn),

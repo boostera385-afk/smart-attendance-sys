@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   AlertTriangleIcon,
+  BellIcon,
+  BellOffIcon,
   CameraIcon,
   CheckIcon,
   ClockIcon,
@@ -23,6 +25,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { StatusPill } from "@/components/form-bits";
 import { fmtDays, fmtMinutes, TZ } from "@/lib/format";
 import { dayClock, insideOffice, nearestOffice, type PortalToday } from "@/lib/portal";
+import { alertsEnabled, ATTENDANCE_CHANGED, previewChime, requestAlertPermission, setAlertsEnabled } from "@/components/shift-alerts";
 import { portalCheck, type CheckResult } from "./actions";
 
 const clockFmt = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -81,6 +84,7 @@ export function TodayCard({ initial }: { initial: PortalToday }) {
               <ClockIcon className="size-3.5" /> {shiftLine}
               {t.holiday && <StatusPill status="holiday" label="Holiday" />}
             </p>
+            <AlertsToggle />
           </div>
 
           <div className="grid grid-cols-3 gap-3">
@@ -289,7 +293,8 @@ function CheckDialog({ today, action: openedAs, now, onClose }: {
       canvas.toBlob((b) => resolve(b), "image/jpeg", 0.8);
     });
 
-  const submit = () =>
+  const submit = () => {
+    void requestAlertPermission(); // must run inside the click; enables break / shift-end alerts
     start(async () => {
       const fd = new FormData();
       fd.set("action", action);
@@ -314,7 +319,9 @@ function CheckDialog({ today, action: openedAs, now, onClose }: {
       }
       streamRef.current?.getTracks().forEach((tr) => tr.stop());
       setResult(r);
+      window.dispatchEvent(new Event(ATTENDANCE_CHANGED));
     });
+  };
 
   const isIn = action === "check_in";
 
@@ -447,5 +454,40 @@ function Warn({ children }: { children: React.ReactNode }) {
       <AlertTriangleIcon className="mt-0.5 size-4 shrink-0 text-warning" />
       <span>{children}</span>
     </p>
+  );
+}
+
+/** Per-device switch for the break-start / shift-end chime + notifications. */
+function AlertsToggle() {
+  const [on, setOn] = useState<boolean | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read a browser-only preference after mount
+    setOn(alertsEnabled());
+  }, []);
+  if (on === null) return null;
+
+  const toggle = async () => {
+    const next = !on;
+    setAlertsEnabled(next);
+    setOn(next);
+    if (next) {
+      const perm = await requestAlertPermission();
+      previewChime("shift_end");
+      toast.success(
+        perm === "granted"
+          ? "Alerts on: you'll hear a chime at break time and when your shift ends."
+          : "Alerts on (sound + in-app). Allow notifications in your browser to get them in the background too.",
+      );
+    } else {
+      toast("Alert sounds off on this device.");
+    }
+  };
+
+  return (
+    <button type="button" onClick={toggle}
+      className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted">
+      {on ? <BellIcon className="size-3.5 text-primary" /> : <BellOffIcon className="size-3.5" />}
+      {on ? "Break & shift-end alerts on" : "Alerts off"}
+    </button>
   );
 }

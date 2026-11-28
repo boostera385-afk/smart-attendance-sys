@@ -90,7 +90,7 @@ export async function loadEmployee(id: string) {
   const user = prof ? (await admin.auth.admin.getUserById(prof.id)).data.user : null;
   const s = (asg?.[0]?.shifts ?? null) as unknown as {
     kind: "fixed" | "flexible"; start_time: string; end_time: string; required_minutes: number | null;
-    working_days: number[]; break_minutes: number; break_mode: "deduct" | "paid"; grace_in_minutes: number;
+    working_days: number[]; break_minutes: number; break_start: string | null; break_mode: "deduct" | "paid"; grace_in_minutes: number;
     grace_out_minutes: number; overtime_after_minutes: number;
   } | null;
   const c = comp?.[0];
@@ -116,6 +116,7 @@ export async function loadEmployee(id: string) {
       requiredHours: (s.required_minutes ?? 480) / 60,
       workingDays: s.working_days,
       breakMinutes: s.break_minutes,
+      breakStart: s.break_start?.slice(0, 5) ?? "",
       breakMode: "paid",
       graceIn: s.grace_in_minutes,
       graceOut: s.grace_out_minutes,

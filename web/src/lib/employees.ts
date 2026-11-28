@@ -22,6 +22,8 @@ export type EmployeeInput = {
   requiredHours: number;
   workingDays: number[];
   breakMinutes: number;
+  /** "HH:MM" when the paid break starts (drives the break-time alert); "" = not set */
+  breakStart: string;
   /** Company policy: breaks are always paid (also enforced in the database). */
   breakMode: "paid";
   graceIn: number;
@@ -66,6 +68,7 @@ export function validateEmployee(i: EmployeeInput, creating: boolean): string | 
     if (i.kind === "fixed" && (!i.start || !i.end || i.start === i.end)) return "Start and end time must be different.";
     if (i.kind === "flexible" && !(i.requiredHours > 0 && i.requiredHours <= 16)) return "Required hours must be 1–16.";
     if (i.breakMinutes < 0 || i.breakMinutes > 240) return "Break must be 0–240 minutes.";
+    if (i.breakStart && !/^\d{2}:\d{2}$/.test(i.breakStart)) return "Enter a valid break start time.";
   }
   if (i.salaryChanged) {
     if (i.basicSalary == null || !(i.basicSalary >= 0)) return "Enter the basic salary.";
